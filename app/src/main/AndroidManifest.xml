@@ -4,16 +4,19 @@
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".MaccProjectApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Maccprojectapp">
+
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,7 +25,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".NearbyStoresActivity"
+            android:name=".ui.nearbyrestaurant.NearbyRestaurantActivity"
             android:exported="true" />
     </application>
 

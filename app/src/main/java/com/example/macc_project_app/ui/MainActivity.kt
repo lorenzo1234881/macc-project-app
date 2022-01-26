@@ -1,9 +1,11 @@
-package com.example.macc_project_app
+package com.example.macc_project_app.ui
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import com.example.macc_project_app.R
+import com.example.macc_project_app.ui.nearbyrestaurant.NearbyRestaurantActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -12,7 +14,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun switchNextActivity(view: View){
-        val intent = Intent(this, NearbyStoresActivity::class.java)
+        val intent = Intent(this, NearbyRestaurantActivity::class.java)
         startActivity(intent)
     }
 }
