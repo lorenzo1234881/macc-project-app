@@ -14,7 +14,7 @@ class VolleySingleton constructor(context: Context){
         @Volatile
         private var INSTANCE: VolleySingleton? = null
         fun getInstance(context: Context) =
-            // Only one thread at the time can call getInstance() if INSTANCE is not null
+            // Only one thread at the time can call getInstance() if INSTANCE is null
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: VolleySingleton(context).also {
                     INSTANCE = it

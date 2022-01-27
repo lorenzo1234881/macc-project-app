@@ -21,7 +21,7 @@ class RestaurantsListViewModel @Inject constructor(
         return restaurantsLiveData
     }
 
-    fun loadRestaurants(latitude: String, longitude: String, context:Context) {
+    fun loadRestaurants(latitude: String, longitude: String, context: Context) {
         viewModelScope.launch {
             restaurantsLiveData.value = getNearbyRestaurantUseCase.invoke(latitude, longitude, context)
         }

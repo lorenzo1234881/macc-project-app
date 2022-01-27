@@ -77,6 +77,7 @@ class NearbyRestaurantApi @Inject constructor(){
             for (i in 0 until jsonArrayLen) {
                 val restaurantJsonObject = jsonArray.getJSONObject(i)
                 restaurants.add (Restaurant(
+                    restaurantJsonObject.getLong("id"),
                     restaurantJsonObject.getString("name"),
                     restaurantJsonObject.getString("description"),
                     restaurantJsonObject.getString("path_image"))
