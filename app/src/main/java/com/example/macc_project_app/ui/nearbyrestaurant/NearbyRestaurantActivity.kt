@@ -14,9 +14,14 @@ import android.util.Log
 import android.widget.Toast
 
 import android.os.Looper
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
 import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.macc_project_app.R
 import com.example.macc_project_app.data.Restaurant
 import com.example.macc_project_app.ui.restaurantdetail.RestaurantDetailActivity
@@ -54,6 +59,9 @@ class NearbyRestaurantActivity : AppCompatActivity() {
 
     private val mRestaurantListViewModel : RestaurantsListViewModel by viewModels()
 
+    private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
+    private var mRefresh : Boolean = false
+
     private var mLastUpdateTime: String? = null
     private val TAG = NearbyRestaurantActivity::class.java.simpleName
 
@@ -65,6 +73,7 @@ class NearbyRestaurantActivity : AppCompatActivity() {
     private lateinit var mLocationSettingsRequest: LocationSettingsRequest
     private var mRequestingLocationUpdates: Boolean = true
 
+    private val restaurantAdapter = RestaurantAdapter { restaurant -> adapterOnClick(restaurant)}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,16 +92,26 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         buildLocationSettingsRequest()
 
         val recyclerView: RecyclerView = findViewById(R.id.restaurantRecyclerView)
-        val restaurantAdapter = RestaurantAdapter { restaurant -> adapterOnClick(restaurant)}
         recyclerView.adapter = restaurantAdapter
 
         mRestaurantListViewModel.getRestaurants().observe(this, {
             it?.let {
                 Log.d(TAG, "RestaurantViewModel changed to $it")
                 restaurantAdapter.submitList(it)
+                mSwipeRefreshLayout.isRefreshing = false
             }
         })
 
+        mSwipeRefreshLayout = findViewById(R.id.swiperefresh)
+
+        mSwipeRefreshLayout.setOnRefreshListener {
+            Log.i(TAG, "onRefresh called from SwipeRefreshLayout")
+
+
+            // This method performs the actual data-refresh operation.
+            // The method calls setRefreshing(false) when it's finished.
+            initiateRefresh()
+        }
 
     }
 
@@ -123,6 +142,29 @@ class NearbyRestaurantActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         stopLocationUpdates()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.nearby_stores_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.menu_refresh -> {
+                Log.i(TAG, "Refresh menu item selected")
+
+                // We make sure that the SwipeRefreshLayout is displaying it's refreshing indicator
+                if (!mSwipeRefreshLayout.isRefreshing) {
+                    mSwipeRefreshLayout.isRefreshing = true
+                }
+
+                // Start our refresh background task
+                initiateRefresh()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onRequestPermissionsResult(
@@ -199,6 +241,7 @@ class NearbyRestaurantActivity : AppCompatActivity() {
      */
     private fun createLocationCallback() {
         mLocationCallback = object : LocationCallback() {
+
             override fun onLocationResult(locationResult: LocationResult) {
                 super.onLocationResult(locationResult)
                 mCurrentLocation = locationResult.lastLocation
@@ -209,9 +252,9 @@ class NearbyRestaurantActivity : AppCompatActivity() {
 
                 Log.d(TAG, "longitude: $longitude, latitude: $latitude")
 
-                mRestaurantListViewModel.loadRestaurants(latitude, longitude,this@NearbyRestaurantActivity)
-
                 stopLocationUpdates()
+
+                mRestaurantListViewModel.loadRestaurants(latitude, longitude,this@NearbyRestaurantActivity, mRefresh)
             }
         }
     }
@@ -286,5 +329,20 @@ class NearbyRestaurantActivity : AppCompatActivity() {
             .addOnCompleteListener(this) {
                 mRequestingLocationUpdates = false
             }
+    }
+
+    private fun initiateRefresh() {
+
+        mRefresh = true
+
+        restaurantAdapter.submitList(null)
+
+        Log.i(TAG, "initiateRefresh")
+        mRequestingLocationUpdates = true
+        if (mRequestingLocationUpdates && locationPermissionsGranted()) {
+            startLocationUpdates()
+        } else if (!locationPermissionsGranted()) {
+            requestLocationPermissions()
+        }
     }
 }

@@ -8,8 +8,11 @@ import javax.inject.Inject
 class GetNearbyRestaurantUseCase @Inject constructor(
     private val restaurantRepository: RestaurantRepository,
 ){
-    suspend operator fun invoke(latitude: String, longitude: String, context: Context): List<Restaurant>? {
-        return restaurantRepository.getNearbyRestaurant(latitude, longitude, context)
+    suspend operator fun invoke(latitude: String,
+                                longitude: String,
+                                context: Context,
+                                refresh:Boolean): List<Restaurant> {
+        return restaurantRepository.getNearbyRestaurant(latitude, longitude, context, refresh)
     }
 
     suspend fun invoke(restaurantId: Long): Restaurant {

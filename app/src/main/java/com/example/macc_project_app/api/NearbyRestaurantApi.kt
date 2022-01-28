@@ -7,11 +7,6 @@ import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
 import com.example.macc_project_app.data.Restaurant
-import dagger.hilt.EntryPoint
-import dagger.hilt.InstallIn
-import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.components.SingletonComponent
-import org.json.JSONArray
 import org.json.JSONObject
 import javax.inject.Inject
 import kotlin.coroutines.Continuation
@@ -53,7 +48,7 @@ class NearbyRestaurantApi @Inject constructor(){
         locationUser.put("latitude", latitude)
         locationUser.put("longitude", longitude)
 
-         Log.i("VOLLEY", "sending " + locationUser.toString() )
+         Log.i("VOLLEY", "sending $locationUser")
 
         val jsonObjectRequest = JsonObjectRequest(
             Request.Method.POST,

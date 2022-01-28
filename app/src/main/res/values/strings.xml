@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">macc-project-app</string>
     <string name="button">Button</string>
+    <string name="menu_refresh">Refresh</string>
 </resources>

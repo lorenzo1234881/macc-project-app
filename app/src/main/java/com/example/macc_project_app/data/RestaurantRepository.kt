@@ -22,14 +22,17 @@ class RestaurantRepository @Inject constructor(
     suspend fun getNearbyRestaurant(
         latitude: String,
         longitude: String,
-        context: Context
+        context: Context,
+        refresh: Boolean
     ): List<Restaurant> {
-        restaurantsCacheMutex.withLock {
-            restaurantsCache = restaurantRemoteDataSource.getNearbyRestaurants(
-                latitude,
-                longitude,
-                context
-            ) ?: emptyList()
+        if(refresh || restaurantsCache.isEmpty()) {
+            restaurantsCacheMutex.withLock {
+                restaurantsCache = restaurantRemoteDataSource.getNearbyRestaurants(
+                    latitude,
+                    longitude,
+                    context
+                ) ?: emptyList()
+            }
         }
 
         return restaurantsCache
