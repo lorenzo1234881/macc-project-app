@@ -32,23 +32,12 @@ import com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_A
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.DateFormat
 import java.util.*
-
-/**
- * The desired interval for location updates. Inexact. Updates may be more or less frequent.
- */
-const val UPDATE_INTERVAL_IN_MILLISECONDS: Long = 100000
-
-/**
- * The fastest rate for active location updates. Exact. Updates will never be more frequent
- * than this value.
- */
-const val FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS = UPDATE_INTERVAL_IN_MILLISECONDS / 2
+import javax.inject.Inject
 
 const val REQUEST_CHECK_SETTINGS = 0x1
 const  val REQUEST_LOCATION = 0x2
 
 // Keys for storing activity state in the Bundle.
-const val KEY_REQUESTING_LOCATION_UPDATES = "requesting-location-updates"
 const val KEY_LOCATION = "location"
 const val KEY_LAST_UPDATED_TIME_STRING = "last-updated-time-string"
 
@@ -57,39 +46,53 @@ const val RESTAURANT_ID = "restaurant id"
 @AndroidEntryPoint
 class NearbyRestaurantActivity : AppCompatActivity() {
 
+    /**
+     * Creates a callback for receiving location events.
+     */
+    inner class NearbyRestaurantLocationCallback: LocationCallback() {
+
+        override fun onLocationResult(locationResult: LocationResult) {
+            super.onLocationResult(locationResult)
+            mCurrentLocation = locationResult.lastLocation
+            mLastUpdateTime = DateFormat.getTimeInstance().format(Date())
+
+            val latitude = mCurrentLocation.latitude.toString()
+            val longitude = mCurrentLocation.longitude.toString()
+
+            Log.d(TAG, "longitude: $longitude, latitude: $latitude")
+
+            mLocationController.stopLocationUpdates()
+
+            mRestaurantListViewModel.loadRestaurants(latitude, longitude,this@NearbyRestaurantActivity, mRefresh)
+        }
+    }
+
+    private val TAG: String = NearbyRestaurantActivity::class.java.simpleName
+
     private val mRestaurantListViewModel : RestaurantsListViewModel by viewModels()
 
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
-    private var mRefresh : Boolean = false
 
-    private var mLastUpdateTime: String? = null
-    private val TAG = NearbyRestaurantActivity::class.java.simpleName
+    private var mLastUpdateTime: String? = ""
 
     private lateinit var mCurrentLocation: Location
-    private lateinit var mLocationCallback: LocationCallback
-    private lateinit var mLocationRequest: LocationRequest
-    private lateinit var mFusedLocationClient : FusedLocationProviderClient
-    private lateinit var mSettingsClient : SettingsClient
-    private lateinit var mLocationSettingsRequest: LocationSettingsRequest
-    private var mRequestingLocationUpdates: Boolean = true
 
-    private val restaurantAdapter = RestaurantAdapter { restaurant -> adapterOnClick(restaurant)}
+    private var mRefresh : Boolean = false
+
+    private val mLocationController : LocationController by lazy {
+        LocationController(this@NearbyRestaurantActivity, NearbyRestaurantLocationCallback())
+    }
+
+    private val restaurantAdapter = RestaurantAdapter {
+            restaurant -> adapterOnClick(restaurant)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_nearby_stores)
 
-        mLastUpdateTime = ""
-
         // Update values using data stored in the Bundle.
         updateValuesFromBundle(savedInstanceState)
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        mSettingsClient = LocationServices.getSettingsClient(this)
-
-        createLocationCallback()
-        createLocationRequest()
-        buildLocationSettingsRequest()
 
         val recyclerView: RecyclerView = findViewById(R.id.restaurantRecyclerView)
         recyclerView.adapter = restaurantAdapter
@@ -107,12 +110,12 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         mSwipeRefreshLayout.setOnRefreshListener {
             Log.i(TAG, "onRefresh called from SwipeRefreshLayout")
 
-
             // This method performs the actual data-refresh operation.
             // The method calls setRefreshing(false) when it's finished.
             initiateRefresh()
         }
 
+        mLocationController.startLocationUpdates()
     }
 
     /* Opens RestaurantDetailActivity when RecyclerView item is clicked. */
@@ -123,25 +126,14 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    override fun onStart() {
-        super.onStart()
-
-        mRequestingLocationUpdates = true
-        if (mRequestingLocationUpdates && locationPermissionsGranted()) {
-            startLocationUpdates()
-        } else if (!locationPermissionsGranted()) {
-            requestLocationPermissions()
-        }
-    }
-
     override fun onPause() {
         super.onPause()
-        stopLocationUpdates()
+        mLocationController.stopLocationUpdates()
     }
 
     override fun onStop() {
         super.onStop()
-        stopLocationUpdates()
+        mLocationController.stopLocationUpdates()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -175,26 +167,11 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if(requestCode == REQUEST_LOCATION) {
             Log.i("RequestPermission", "Received response for Location permission request.")
-            startLocationUpdates()
+            mLocationController.startLocationUpdates()
         }
         else {
             Log.i("RequestPermission", "Location permission was not granted.")
         }
-    }
-
-    private fun locationPermissionsGranted(): Boolean {
-        return ActivityCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    private fun requestLocationPermissions() {
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
-            REQUEST_LOCATION
-        )
     }
 
     /**
@@ -204,13 +181,6 @@ class NearbyRestaurantActivity : AppCompatActivity() {
      */
     private fun updateValuesFromBundle(savedInstanceState: Bundle?) {
         if (savedInstanceState != null) {
-            if (savedInstanceState.keySet()
-                    .contains(KEY_REQUESTING_LOCATION_UPDATES)
-            ) {
-                mRequestingLocationUpdates = savedInstanceState.getBoolean(
-                    KEY_REQUESTING_LOCATION_UPDATES
-                )
-            }
 
             // Update the value of mCurrentLocation from the Bundle and update the UI to show the
             // correct latitude and longitude.
@@ -228,109 +198,6 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         }
     }
 
-    private fun createLocationRequest() {
-        mLocationRequest = LocationRequest.create().apply {
-            interval = UPDATE_INTERVAL_IN_MILLISECONDS
-            fastestInterval= FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS
-            priority = PRIORITY_BALANCED_POWER_ACCURACY
-        }
-    }
-
-    /**
-     * Creates a callback for receiving location events.
-     */
-    private fun createLocationCallback() {
-        mLocationCallback = object : LocationCallback() {
-
-            override fun onLocationResult(locationResult: LocationResult) {
-                super.onLocationResult(locationResult)
-                mCurrentLocation = locationResult.lastLocation
-                mLastUpdateTime = DateFormat.getTimeInstance().format(Date())
-
-                val latitude = mCurrentLocation.latitude.toString()
-                val longitude = mCurrentLocation.longitude.toString()
-
-                Log.d(TAG, "longitude: $longitude, latitude: $latitude")
-
-                stopLocationUpdates()
-
-                mRestaurantListViewModel.loadRestaurants(latitude, longitude,this@NearbyRestaurantActivity, mRefresh)
-            }
-        }
-    }
-
-    private fun buildLocationSettingsRequest() {
-        val builder = LocationSettingsRequest.Builder()
-        builder.addLocationRequest(mLocationRequest)
-        mLocationSettingsRequest = builder.build()
-    }
-
-
-    @SuppressLint("MissingPermission")
-    private fun startLocationUpdates() {
-
-        // TODO check network is turned on
-
-        // Begin by checking if the device has the necessary location settings.
-        mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
-            .addOnSuccessListener(this) {
-                Log.i(TAG, "All location settings are satisfied.")
-                mFusedLocationClient.requestLocationUpdates(
-                    mLocationRequest,
-                    mLocationCallback, Looper.myLooper()!!
-                )
-            }
-            .addOnFailureListener(this) { e ->
-                when ((e as ApiException).statusCode) {
-                    LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> {
-                        Log.i(
-                            TAG,
-                            "Location settings are not satisfied. Attempting to upgrade " +
-                                    "location settings "
-                        )
-                        try {
-                            // Show the dialog by calling startResolutionForResult(), and check the
-                            // result in onActivityResult().
-                            val rae = e as ResolvableApiException
-                            rae.startResolutionForResult(
-                                this,
-                                REQUEST_CHECK_SETTINGS
-                            )
-
-                            // TODO try again startLocationUpdates()
-
-                        } catch (sie: IntentSender.SendIntentException) {
-                            Log.i(TAG, "PendingIntent unable to execute request.")
-                        }
-                    }
-                    LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
-                        val errorMessage = "Location settings are inadequate, and cannot be " +
-                                "fixed here. Fix in Settings."
-                        Log.e(TAG, errorMessage)
-                        Toast.makeText(this, errorMessage, Toast.LENGTH_LONG)
-                            .show()
-                        mRequestingLocationUpdates = false
-                    }
-                }
-            }
-    }
-
-    /**
-     * Removes location updates from the FusedLocationApi.
-     * Should be called when activity in a paused or stopped state.
-     */
-    private fun stopLocationUpdates() {
-        if (!mRequestingLocationUpdates) {
-            Log.d(TAG, "stopLocationUpdates: updates never requested, no-op.")
-            return
-        }
-
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback)
-            .addOnCompleteListener(this) {
-                mRequestingLocationUpdates = false
-            }
-    }
-
     private fun initiateRefresh() {
 
         mRefresh = true
@@ -338,11 +205,8 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         restaurantAdapter.submitList(null)
 
         Log.i(TAG, "initiateRefresh")
-        mRequestingLocationUpdates = true
-        if (mRequestingLocationUpdates && locationPermissionsGranted()) {
-            startLocationUpdates()
-        } else if (!locationPermissionsGranted()) {
-            requestLocationPermissions()
-        }
+
+        mLocationController.startLocationUpdates()
     }
+
 }
