@@ -80,8 +80,10 @@ class NearbyRestaurantApi @Inject constructor(){
                     restaurantJsonObject.getLong("id"),
                     restaurantJsonObject.getString("name"),
                     restaurantJsonObject.getString("description"),
-                    restaurantJsonObject.getString("path_image"))
-                )
+                    restaurantJsonObject.getString("path_image"),
+                    restaurantJsonObject.getString("address"),
+                    restaurantJsonObject.getDouble("distance")
+                    ))
             }
 
             return restaurants

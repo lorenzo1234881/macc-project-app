@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
 
     fun switchNextActivity(view: View){
         // val intent = Intent(this, LoginWithGoogleActivity::class.java)
-        val intent = Intent(this, NearbyRestaurantActivity::class.java)
+        val intent = Intent(this, LoginWithGoogleActivity::class.java)
         startActivity(intent)
     }
 }

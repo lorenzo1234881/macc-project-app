@@ -11,6 +11,7 @@ import com.android.volley.toolbox.NetworkImageView
 import com.example.macc_project_app.R
 import com.example.macc_project_app.api.VolleySingleton
 import com.example.macc_project_app.data.Restaurant
+import java.text.DecimalFormat
 
 class RestaurantAdapter(private val onClick: (Restaurant) -> Unit) :
     ListAdapter<Restaurant, RestaurantAdapter.RestaurantViewHolder>(
@@ -19,8 +20,11 @@ class RestaurantAdapter(private val onClick: (Restaurant) -> Unit) :
     class RestaurantViewHolder (itemView: View, val onClick: (Restaurant) -> Unit) :
         RecyclerView.ViewHolder(itemView) {
 
-        private val restaurantTextView: TextView = itemView.findViewById(R.id.restaurantTextView)
+        private val restaurantNameView: TextView = itemView.findViewById(R.id.restaurantNameView)
         private val restaurantImageView: NetworkImageView = itemView.findViewById(R.id.restaurantImageView)
+        private val restaurantAddressView: TextView = itemView.findViewById(R.id.restaurantAddressView)
+        private val restaurantDistanceView: TextView = itemView.findViewById(R.id.restaurantDistanceView)
+
         private var currentRestaurant: Restaurant? = null
         private val imageLoader = VolleySingleton.getInstance(itemView.context).imageLoader
 
@@ -36,7 +40,9 @@ class RestaurantAdapter(private val onClick: (Restaurant) -> Unit) :
         fun bind(restaurant: Restaurant) {
             currentRestaurant = restaurant
 
-            restaurantTextView.text = restaurant.name
+            restaurantNameView.text = restaurant.name
+            restaurantAddressView.text = restaurant.address
+            restaurantDistanceView.text = String.format("%.3f miles away", restaurant.distance)
             restaurantImageView.setImageUrl(restaurant.imageUrl, imageLoader)
         }
     }

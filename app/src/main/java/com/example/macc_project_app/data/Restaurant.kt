@@ -4,5 +4,7 @@ data class Restaurant(
     val id: Long,
     val name: String,
     val description: String,
-    val imageUrl: String
+    val imageUrl: String,
+    val address: String,
+    val distance: Double
 )
