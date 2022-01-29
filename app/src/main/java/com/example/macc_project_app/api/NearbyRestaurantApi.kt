@@ -14,54 +14,25 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
-class NearbyRestaurantApi @Inject constructor(){
-    private val url = "https://ll328ii.pythonanywhere.com/nearby-restaurants"
+class NearbyRestaurantApi : BaseApi<ArrayList<Restaurant>?> {
+    @Inject constructor()
 
-    inner class ResponseListener(private val cont : Continuation<ArrayList<Restaurant>?>): Response.Listener<JSONObject> {
-        override fun onResponse(response: JSONObject?) {
-            Log.d("VOLLEY response", response.toString())
-            val restaurantsList = parseResponse(response)
-            cont.resume(restaurantsList)
-        }
-    }
-
-    inner class ErrorListener(private val cont : Continuation<ArrayList<Restaurant>?>): Response.ErrorListener {
-        override fun onErrorResponse(error: VolleyError?) {
-            cont.resumeWithException(Exception(error.toString()))
-        }
-    }
+    private val route = "/nearby-restaurants"
 
     suspend fun getNearbyRestaurants(
         latitude : String,
         longitude : String,
         context: Context
-    ) : ArrayList<Restaurant>? =
-        /**
-         * with 'suspendedCoroutine{}' we encapsulate the callback mechanism exposed by Volley
-         * without the need to provide other callback functions
-         * into coroutines, allowing the users of this class to use exclusively coroutines
-         */
-        suspendCoroutine { cont ->
+    ) : ArrayList<Restaurant>? {
         val locationUser = JSONObject()
-        val volleySingleton = VolleySingleton.getInstance(context)
 
         locationUser.put("latitude", latitude)
         locationUser.put("longitude", longitude)
 
-         Log.i("VOLLEY", "sending $locationUser")
-
-        val jsonObjectRequest = JsonObjectRequest(
-            Request.Method.POST,
-            url,
-            locationUser,
-            ResponseListener(cont),
-            ErrorListener(cont)
-        )
-
-        volleySingleton.addToRequestQueue(jsonObjectRequest)
+        return super.sendRequest(locationUser, route, context)
     }
 
-    private fun parseResponse(response: JSONObject?) : ArrayList<Restaurant>?
+    override fun parseResponse(response: JSONObject?) : ArrayList<Restaurant>?
     {
         if(response != null || response === {}) {
 
@@ -86,6 +57,5 @@ class NearbyRestaurantApi @Inject constructor(){
 
         return null
     }
-
 
 }
