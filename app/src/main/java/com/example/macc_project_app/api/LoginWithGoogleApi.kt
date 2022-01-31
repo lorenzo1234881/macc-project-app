@@ -3,6 +3,7 @@ package com.example.macc_project_app.api
 import android.R
 import android.content.Context
 import com.android.volley.AuthFailureError
+import com.android.volley.Request
 import com.android.volley.VolleyError
 import com.android.volley.VolleyLog
 import com.android.volley.toolbox.StringRequest
@@ -20,7 +21,7 @@ class LoginWithGoogleApi @Inject constructor(): BaseApi<Boolean?>() {
 
         token.put("id_token", idToken)
 
-        return super.sendRequest(token, route, context)
+        return super.sendRequest(token, route, Request.Method.POST, context)
     }
 
     override fun parseResponse(response: JSONObject?): Boolean? {

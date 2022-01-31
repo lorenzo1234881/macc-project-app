@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.macc_project_app.R
+import com.example.macc_project_app.api.GetReservationsApi
 import com.example.macc_project_app.ui.nearbyrestaurant.NearbyRestaurantActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn.*
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -19,6 +20,9 @@ import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 @AndroidEntryPoint
@@ -48,7 +52,7 @@ class LoginWithGoogleActivity : AppCompatActivity() {
 
         mLoginWithGoogleViewModel.IsAuthLiveData().observe(this) {
             it?.let {
-                if(it == true) {
+                if(it) {
                     val intent = Intent(this, NearbyRestaurantActivity::class.java)
                     startActivity(intent)
                 }

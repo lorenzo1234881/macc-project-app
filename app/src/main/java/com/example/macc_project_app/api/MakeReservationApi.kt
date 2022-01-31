@@ -1,6 +1,7 @@
 package com.example.macc_project_app.api
 
 import android.content.Context
+import com.android.volley.Request
 import org.json.JSONObject
 import javax.inject.Inject
 
@@ -15,7 +16,7 @@ class MakeReservationApi  @Inject constructor(): BaseApi<Boolean?>() {
         reservation.put("restaurantid", restaurantId)
         reservation.put("number_seats", numberSeats)
 
-        return super.sendRequest(reservation, route, context)
+        return super.sendRequest(reservation, route, Request.Method.POST, context)
     }
 
     override fun parseResponse(response: JSONObject?): Boolean? {

@@ -31,8 +31,9 @@ abstract class BaseApi <T>{
     }
 
     suspend fun sendRequest(
-        requestJsonObject: JSONObject,
+        requestJsonObject: JSONObject?,
         route:String,
+        requestMethod: Int,
         context: Context
     ) : T =
         /**
@@ -46,7 +47,7 @@ abstract class BaseApi <T>{
             Log.d(TAG, "sending $requestJsonObject")
 
             val jsonObjectRequest = JsonObjectRequest(
-                Request.Method.POST,
+                requestMethod,
                 baseUrl+route,
                 requestJsonObject,
                 ResponseListener(cont),

@@ -1,12 +1,12 @@
 package com.example.macc_project_app.api
 
 import android.content.Context
+import com.android.volley.Request
 import com.example.macc_project_app.data.restaurant.Restaurant
 import org.json.JSONObject
 import javax.inject.Inject
 
-class NearbyRestaurantApi : BaseApi<ArrayList<Restaurant>?> {
-    @Inject constructor()
+class NearbyRestaurantApi @Inject constructor() : BaseApi<ArrayList<Restaurant>?>() {
 
     private val route = "/nearby-restaurants"
 
@@ -20,7 +20,7 @@ class NearbyRestaurantApi : BaseApi<ArrayList<Restaurant>?> {
         locationUser.put("latitude", latitude)
         locationUser.put("longitude", longitude)
 
-        return super.sendRequest(locationUser, route, context)
+        return super.sendRequest(locationUser, route, Request.Method.POST, context)
     }
 
     override fun parseResponse(response: JSONObject?) : ArrayList<Restaurant>?
