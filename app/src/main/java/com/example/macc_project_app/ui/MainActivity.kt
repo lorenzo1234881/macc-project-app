@@ -3,6 +3,7 @@ package com.example.macc_project_app.ui
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import com.example.macc_project_app.R
 import com.example.macc_project_app.ui.googlesignin.LoginWithGoogleActivity
 
@@ -12,7 +13,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
     }
 
-    fun switchNextActivity() {
+    fun switchNextActivity(view: View) {
         val intent = Intent(this, LoginWithGoogleActivity::class.java)
         startActivity(intent)
     }

@@ -1,10 +1,13 @@
 package com.example.macc_project_app.ui.restaurantdetail
 
-import androidx.appcompat.app.AppCompatActivity
+import android.app.Dialog
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
+import android.widget.NumberPicker
 import android.widget.TextView
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.toolbox.NetworkImageView
 import com.example.macc_project_app.R
 import com.example.macc_project_app.api.VolleySingleton
@@ -19,33 +22,63 @@ class RestaurantDetailActivity : AppCompatActivity() {
     private val mRestaurantDetailViewModel: RestaurantDetailViewModel by viewModels()
     private val imageLoader = VolleySingleton.getInstance(this).imageLoader
 
+    private val restaurantName: TextView by lazy { findViewById(R.id.restaurantName) }
+    private val restaurantImage: NetworkImageView by lazy { findViewById(R.id.restaurantImageView) }
+    private val restaurantDescription: TextView by lazy { findViewById(R.id.restaurantDescription) }
+    private val reserveButton: Button by lazy { findViewById(R.id.reserveTable) }
+
+    private var mCurrentRestaurantId : Long? = null
+    private var mNumberOfSeats = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_restaurant_detail)
 
-        var currentRestaurantId : Long? = null
-
-        val restaurantName: TextView = findViewById(R.id.restaurantName)
-        val restaurantImage: NetworkImageView = findViewById(R.id.restaurantImageView)
-        val restaurantDescription: TextView = findViewById(R.id.restaurantDescription)
-
         val bundle: Bundle? = intent.extras
         if (bundle != null) {
-            currentRestaurantId = bundle.getLong(RESTAURANT_ID)
+            mCurrentRestaurantId = bundle.getLong(RESTAURANT_ID)
         }
 
-        mRestaurantDetailViewModel.getRestaurantLiveData().observe(this, {
+        reserveButton.setOnClickListener {
+            show()
+        }
+
+        mRestaurantDetailViewModel.getRestaurantLiveData().observe(this) {
             it?.let {
-                Log.d(TAG, "mRestaurantDetailViewModel changed to $it")
+                Log.d(TAG, "restaurantLiveData changed to $it")
 
                 restaurantName.text = it.name
                 restaurantDescription.text = it.description
                 restaurantImage.setImageUrl(it.imageUrl, imageLoader)
             }
-        })
+        }
 
-        currentRestaurantId?.let {
+        mRestaurantDetailViewModel.getReservationStateLiveData().observe(this) {
+            it?.let {
+                Log.d(TAG, "reservationStateLiveData changed to $it")
+            }
+        }
+
+        mCurrentRestaurantId?.let {
             mRestaurantDetailViewModel.getRestaurant(it)
         }
     }
+
+    fun show() {
+        val d = Dialog(this@RestaurantDetailActivity)
+        d.setTitle("NumberPicker")
+        d.setContentView(R.layout.number_seats_dialog)
+        val setButton = d.findViewById(R.id.setButton) as Button
+        val np = d.findViewById(R.id.numberSeatsPicker) as NumberPicker
+        np.maxValue = 100
+        np.minValue = 0
+        np.wrapSelectorWheel = false
+        setButton.setOnClickListener {
+            d.dismiss()
+            mNumberOfSeats = np.value
+            mRestaurantDetailViewModel.makeReservation(mCurrentRestaurantId!!,  mNumberOfSeats, this)
+        }
+        d.show()
+    }
+
 }
