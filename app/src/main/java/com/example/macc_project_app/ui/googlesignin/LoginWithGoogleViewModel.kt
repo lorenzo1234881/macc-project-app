@@ -22,7 +22,7 @@ class LoginWithGoogleViewModel @Inject constructor(
         }
     }
 
-    fun IsAuthLiveData(): MutableLiveData<Boolean>  {
+    fun isAuthLiveData(): MutableLiveData<Boolean>  {
         return isAuthLiveData
     }
 }

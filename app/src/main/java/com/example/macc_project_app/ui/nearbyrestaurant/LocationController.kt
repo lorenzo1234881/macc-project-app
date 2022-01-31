@@ -2,10 +2,8 @@ package com.example.macc_project_app.ui.nearbyrestaurant
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.IntentSender
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
@@ -14,13 +12,6 @@ import androidx.core.app.ActivityCompat
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import dagger.Provides
-import dagger.hilt.android.qualifiers.ActivityContext
-import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ActivityRetainedScoped
-import dagger.hilt.android.scopes.ActivityScoped
-import java.util.*
-import javax.inject.Inject
 
 /**
  * The desired interval for location updates. Inexact. Updates may be more or less frequent.
