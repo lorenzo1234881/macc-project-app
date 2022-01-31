@@ -71,7 +71,7 @@ class RestaurantDetailActivity : AppCompatActivity() {
         val setButton = d.findViewById(R.id.setButton) as Button
         val np = d.findViewById(R.id.numberSeatsPicker) as NumberPicker
         np.maxValue = 100
-        np.minValue = 0
+        np.minValue = 1
         np.wrapSelectorWheel = false
         setButton.setOnClickListener {
             d.dismiss()
