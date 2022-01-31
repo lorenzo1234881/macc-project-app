@@ -1,4 +1,4 @@
-package com.example.macc_project_app.data
+package com.example.macc_project_app.data.restaurant
 
 data class Restaurant(
     val id: Long,

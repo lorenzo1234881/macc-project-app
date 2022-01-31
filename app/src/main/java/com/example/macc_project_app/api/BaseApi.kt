@@ -6,7 +6,6 @@ import com.android.volley.Request
 import com.android.volley.Response
 import com.android.volley.VolleyError
 import com.android.volley.toolbox.JsonObjectRequest
-import com.example.macc_project_app.data.Restaurant
 import org.json.JSONObject
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume

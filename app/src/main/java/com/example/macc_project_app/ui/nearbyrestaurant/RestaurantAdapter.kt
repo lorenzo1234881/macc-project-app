@@ -10,8 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.toolbox.NetworkImageView
 import com.example.macc_project_app.R
 import com.example.macc_project_app.api.VolleySingleton
-import com.example.macc_project_app.data.Restaurant
-import java.text.DecimalFormat
+import com.example.macc_project_app.data.restaurant.Restaurant
 
 class RestaurantAdapter(private val onClick: (Restaurant) -> Unit) :
     ListAdapter<Restaurant, RestaurantAdapter.RestaurantViewHolder>(

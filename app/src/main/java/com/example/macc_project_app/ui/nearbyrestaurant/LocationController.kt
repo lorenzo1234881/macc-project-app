@@ -137,6 +137,7 @@ class LocationController (
             return
         }
 
+        Log.d(TAG, "stopLocationUpdates: remove location updates.")
         mFusedLocationClient.removeLocationUpdates(mLocationCallback)
             .addOnCompleteListener(activity) {
                 mRequestingLocationUpdates = false

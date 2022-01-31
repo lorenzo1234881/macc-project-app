@@ -7,21 +7,29 @@ import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.ImageLoader
 import com.android.volley.toolbox.Volley
-
+import java.net.CookieHandler
+import java.net.CookieManager
+import java.net.CookiePolicy
 
 class VolleySingleton constructor(context: Context){
     companion object {
         @Volatile
         private var INSTANCE: VolleySingleton? = null
+
         fun getInstance(context: Context) =
             // Only one thread at the time can call getInstance() if INSTANCE is null
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: VolleySingleton(context).also {
+                    it.mCookieManager = CookieManager(null, CookiePolicy.ACCEPT_ALL)
+                    CookieHandler.setDefault(it.mCookieManager)
                     INSTANCE = it
                 }
             }
 
     }
+
+    private lateinit var mCookieManager: CookieManager
+
     val imageLoader: ImageLoader by lazy {
         ImageLoader(requestQueue,
             object : ImageLoader.ImageCache {

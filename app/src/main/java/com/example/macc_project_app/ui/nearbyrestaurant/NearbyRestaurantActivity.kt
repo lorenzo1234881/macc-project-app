@@ -2,37 +2,23 @@ package com.example.macc_project_app.ui.nearbyrestaurant
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.content.pm.PackageManager
 
-import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.IntentSender
 import android.location.Location
 import android.util.Log
 
-import android.widget.Toast
-
-import android.os.Looper
 import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
-import android.view.View
 import androidx.activity.viewModels
-import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.macc_project_app.R
-import com.example.macc_project_app.data.Restaurant
+import com.example.macc_project_app.data.restaurant.Restaurant
 import com.example.macc_project_app.ui.restaurantdetail.RestaurantDetailActivity
-import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
-import com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.DateFormat
 import java.util.*
-import javax.inject.Inject
 
 const val REQUEST_CHECK_SETTINGS = 0x1
 const  val REQUEST_LOCATION = 0x2
@@ -97,13 +83,13 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         val recyclerView: RecyclerView = findViewById(R.id.restaurantRecyclerView)
         recyclerView.adapter = restaurantAdapter
 
-        mRestaurantListViewModel.getRestaurants().observe(this, {
+        mRestaurantListViewModel.getRestaurants().observe(this) {
             it?.let {
                 Log.d(TAG, "RestaurantViewModel changed to $it")
                 restaurantAdapter.submitList(it)
                 mSwipeRefreshLayout.isRefreshing = false
             }
-        })
+        }
 
         mSwipeRefreshLayout = findViewById(R.id.swiperefresh)
 

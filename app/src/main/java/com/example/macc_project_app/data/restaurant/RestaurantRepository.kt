@@ -1,4 +1,4 @@
-package com.example.macc_project_app.data
+package com.example.macc_project_app.data.restaurant
 
 import android.content.Context
 import android.util.Log
