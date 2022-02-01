@@ -14,11 +14,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.macc_project_app.R
 import com.example.macc_project_app.data.restaurant.Restaurant
-import com.example.macc_project_app.domain.InitGoogleSignInClientUseCase
 import com.example.macc_project_app.ui.googlesignin.LoginWithGoogleActivity
 import com.example.macc_project_app.ui.reservationslist.ReservationsListActivity
 import com.example.macc_project_app.ui.restaurantdetail.RestaurantDetailActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.material.navigation.NavigationView
@@ -95,7 +96,7 @@ class NearbyRestaurantActivity : AppCompatActivity() {
             it?.let {
                 Log.d(TAG, "authLiveData changed to $it")
 
-                val googleSignInClient = InitGoogleSignInClientUseCase(applicationContext)
+                val googleSignInClient = GoogleSignIn.getClient(applicationContext, GoogleSignInOptions.DEFAULT_SIGN_IN)
 
                 signOut(googleSignInClient)
                 revokeAccess(googleSignInClient)
