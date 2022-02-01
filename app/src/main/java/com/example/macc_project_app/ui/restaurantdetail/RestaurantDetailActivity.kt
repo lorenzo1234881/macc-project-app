@@ -47,6 +47,10 @@ class RestaurantDetailActivity : AppCompatActivity() {
             show()
         }
 
+        cancelButton.setOnClickListener {
+            mRestaurantDetailViewModel.cancelReservation(mCurrentRestaurantId, this)
+        }
+
         mRestaurantDetailViewModel.getRestaurantLiveData().observe(this) {
             it?.let {
                 Log.d(TAG, "restaurantListLiveData changed to $it")

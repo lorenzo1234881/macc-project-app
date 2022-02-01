@@ -23,7 +23,12 @@ class GetReservedRestaurantUseCase @Inject constructor(
         return reservedRestaurants
     }
 
-    suspend operator fun invoke(restaurantId: Long): Boolean {
+    suspend operator fun invoke(restaurantId: Long): Reservation? {
+        return reservationRepository.getReservation(restaurantId)
+    }
+
+    suspend fun existsRreservation(restaurantId: Long): Boolean {
         return reservationRepository.getReservation(restaurantId) != null
     }
+
 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.macc_project_app.api.CancelReservationApi
 import com.example.macc_project_app.api.MakeReservationApi
 import com.example.macc_project_app.data.restaurant.Restaurant
 import com.example.macc_project_app.domain.GetNearbyRestaurantUseCase
@@ -17,6 +18,7 @@ import javax.inject.Inject
 class RestaurantDetailViewModel @Inject constructor(
     val getNearbyRestaurantUseCase: GetNearbyRestaurantUseCase,
     val makeReservationApi: MakeReservationApi,
+    val cancelReservationApi: CancelReservationApi,
     val getReservedRestaurantUseCase: GetReservedRestaurantUseCase
 ) : ViewModel() {
 
@@ -44,11 +46,21 @@ class RestaurantDetailViewModel @Inject constructor(
         }
     }
 
+    fun cancelReservation(restaurantId:Long?, context: Context) {
+        viewModelScope.launch {
+            if(restaurantId != null) {
+                val reservation = getReservedRestaurantUseCase(restaurantId)
+                if(reservation != null) {
+                    reservationStateLiveData.value = cancelReservationApi.sendCancellation(reservation, context)
+                }
+            }
+        }
+    }
+
     fun existsReservation(restaurantId: Long) {
         viewModelScope.launch {
-            reservationStateLiveData.value = getReservedRestaurantUseCase(restaurantId)
+            reservationStateLiveData.value = getReservedRestaurantUseCase.existsRreservation(restaurantId)
         }
-
     }
 
 }
