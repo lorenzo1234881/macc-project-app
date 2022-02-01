@@ -14,9 +14,11 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.macc_project_app.R
 import com.example.macc_project_app.data.restaurant.Restaurant
+import com.example.macc_project_app.domain.InitGoogleSignInClientUseCase
 import com.example.macc_project_app.ui.googlesignin.LoginWithGoogleActivity
 import com.example.macc_project_app.ui.reservationslist.ReservationsListActivity
 import com.example.macc_project_app.ui.restaurantdetail.RestaurantDetailActivity
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.material.navigation.NavigationView
@@ -27,10 +29,6 @@ import java.util.*
 
 const val REQUEST_CHECK_SETTINGS = 0x1
 const  val REQUEST_LOCATION = 0x2
-
-// Keys for storing activity state in the Bundle.
-const val KEY_LOCATION = "location"
-const val KEY_LAST_UPDATED_TIME_STRING = "last-updated-time-string"
 
 const val RESTAURANT_ID = "restaurant id"
 
@@ -82,9 +80,6 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_nearby_stores)
 
-        // Update values using data stored in the Bundle.
-        updateValuesFromBundle(savedInstanceState)
-
         val recyclerView: RecyclerView = findViewById(R.id.restaurantRecyclerView)
         recyclerView.adapter = restaurantAdapter
 
@@ -93,6 +88,21 @@ class NearbyRestaurantActivity : AppCompatActivity() {
                 Log.d(TAG, "restaurantListLiveData changed to $it")
                 restaurantAdapter.submitList(it)
                 mSwipeRefreshLayout.isRefreshing = false
+            }
+        }
+
+        mRestaurantListViewModel.getAuthLiveData().observe(this) {
+            it?.let {
+                Log.d(TAG, "authLiveData changed to $it")
+
+                val googleSignInClient = InitGoogleSignInClientUseCase(applicationContext)
+
+                signOut(googleSignInClient)
+                revokeAccess(googleSignInClient)
+
+                // pass to LoginWithGoogleActivity after sending logout
+                val intent = Intent(this, LoginWithGoogleActivity::class.java)
+                startActivity(intent)
             }
         }
 
@@ -130,6 +140,7 @@ class NearbyRestaurantActivity : AppCompatActivity() {
                 }
                 R.id.nav_logout -> {
                     Log.i(TAG, "logout")
+                    mRestaurantListViewModel.logout(this)
                     true
                 }
                 else -> {
@@ -210,30 +221,6 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Updates fields based on data stored in the bundle.
-     *
-     * @param savedInstanceState The activity state saved in the Bundle.
-     */
-    private fun updateValuesFromBundle(savedInstanceState: Bundle?) {
-        if (savedInstanceState != null) {
-
-            // Update the value of mCurrentLocation from the Bundle and update the UI to show the
-            // correct latitude and longitude.
-            if (savedInstanceState.keySet().contains(KEY_LOCATION)) {
-                // Since KEY_LOCATION was found in the Bundle, we can be sure that mCurrentLocation
-                // is not null.
-                mCurrentLocation = savedInstanceState.getParcelable(KEY_LOCATION)!!
-            }
-
-            // Update the value of mLastUpdateTime from the Bundle and update the UI.
-            if (savedInstanceState.keySet().contains(KEY_LAST_UPDATED_TIME_STRING)) {
-                mLastUpdateTime =
-                    savedInstanceState.getString(KEY_LAST_UPDATED_TIME_STRING)
-            }
-        }
-    }
-
     private fun initiateRefresh() {
 
         mRefresh = true
@@ -244,5 +231,20 @@ class NearbyRestaurantActivity : AppCompatActivity() {
 
         mLocationController.startLocationUpdates()
     }
+
+    private fun signOut(googleSignInClient: GoogleSignInClient) {
+        googleSignInClient.signOut()
+            .addOnCompleteListener(this) {
+                Log.d(TAG, "Sign Out")
+            }
+    }
+
+    private fun revokeAccess(googleSignInClient: GoogleSignInClient) {
+        googleSignInClient.revokeAccess()
+            .addOnCompleteListener(this) {
+                Log.d(TAG, "Revoke Access")
+            }
+    }
+
 
 }

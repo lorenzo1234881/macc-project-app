@@ -1,6 +1,7 @@
 package com.example.macc_project_app.ui.restaurantdetail
 
 import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -11,8 +12,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.toolbox.NetworkImageView
 import com.example.macc_project_app.R
 import com.example.macc_project_app.api.VolleySingleton
+import com.example.macc_project_app.ui.googlesignin.LoginWithGoogleActivity
+import com.example.macc_project_app.ui.nearbyrestaurant.NearbyRestaurantActivity
 import com.example.macc_project_app.ui.nearbyrestaurant.RESTAURANT_ID
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
@@ -100,5 +104,6 @@ class RestaurantDetailActivity : AppCompatActivity() {
         }
         d.show()
     }
+
 
 }

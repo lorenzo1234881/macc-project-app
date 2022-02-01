@@ -10,7 +10,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.macc_project_app.R
+import com.example.macc_project_app.domain.InitGoogleSignInClientUseCase
 import com.example.macc_project_app.ui.nearbyrestaurant.NearbyRestaurantActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignIn.*
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -20,14 +22,12 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import dagger.hilt.android.AndroidEntryPoint
 
-
 @AndroidEntryPoint
 class LoginWithGoogleActivity : AppCompatActivity() {
     private val TAG: String = LoginWithGoogleActivity::class.java.simpleName
     private val mLoginWithGoogleViewModel : LoginWithGoogleViewModel by viewModels()
     private lateinit var mGoogleSignInClient: GoogleSignInClient
     private lateinit var signInButton : SignInButton
-    private var mAccount : GoogleSignInAccount? = null
 
     private val mSignInActivity = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
@@ -58,19 +58,8 @@ class LoginWithGoogleActivity : AppCompatActivity() {
             }
         }
 
-        val ai: ApplicationInfo = applicationContext.packageManager
-            .getApplicationInfo(applicationContext.packageName, PackageManager.GET_META_DATA)
-        val clientServerId = ai.metaData["client_server_id"] as String
+        mGoogleSignInClient = InitGoogleSignInClientUseCase(applicationContext)
 
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(clientServerId)
-            .requestEmail()
-            .build()
-
-        // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = getClient(this, gso)
         signInButton = this.findViewById(R.id.sign_in_button)
         signInButton.setOnClickListener {
             val signInIntent = mGoogleSignInClient.signInIntent
