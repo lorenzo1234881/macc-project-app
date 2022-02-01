@@ -4,4 +4,11 @@
     <string name="menu_refresh">Refresh</string>
     <string name="reserve_table">Make a Reservation</string>
     <string name="setButton">Set</string>
+    <string name="my_account">My Account</string>
+    <string name="reservations">Reservations</string>
+    <string name="logout">Logout</string>
+    <string name="nav_open">Open</string>
+    <string name="nav_close">Close</string>
+    <string name="cancel_reservation">Cancel Reservation</string>
+    <string name="update_reservation">Update Reservation</string>
 </resources>

@@ -1,24 +1,29 @@
 package com.example.macc_project_app.ui.nearbyrestaurant
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-
 import android.content.Intent
 import android.location.Location
+import android.os.Bundle
 import android.util.Log
-
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.macc_project_app.R
 import com.example.macc_project_app.data.restaurant.Restaurant
+import com.example.macc_project_app.ui.googlesignin.LoginWithGoogleActivity
+import com.example.macc_project_app.ui.reservationslist.ReservationsListActivity
 import com.example.macc_project_app.ui.restaurantdetail.RestaurantDetailActivity
-import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
+import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.DateFormat
 import java.util.*
+
 
 const val REQUEST_CHECK_SETTINGS = 0x1
 const  val REQUEST_LOCATION = 0x2
@@ -58,13 +63,10 @@ class NearbyRestaurantActivity : AppCompatActivity() {
     private val mRestaurantListViewModel : RestaurantsListViewModel by viewModels()
 
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
-
-    private var mLastUpdateTime: String? = ""
-
-    private lateinit var mCurrentLocation: Location
-
     private var mRefresh : Boolean = false
 
+    private var mLastUpdateTime: String? = ""
+    private lateinit var mCurrentLocation: Location
     private val mLocationController : LocationController by lazy {
         LocationController(this@NearbyRestaurantActivity, NearbyRestaurantLocationCallback())
     }
@@ -72,6 +74,9 @@ class NearbyRestaurantActivity : AppCompatActivity() {
     private val restaurantAdapter = RestaurantAdapter {
             restaurant -> adapterOnClick(restaurant)
     }
+
+    var drawerLayout: DrawerLayout? = null
+    var actionBarDrawerToggle: ActionBarDrawerToggle? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +90,7 @@ class NearbyRestaurantActivity : AppCompatActivity() {
 
         mRestaurantListViewModel.getRestaurants().observe(this) {
             it?.let {
-                Log.d(TAG, "RestaurantViewModel changed to $it")
+                Log.d(TAG, "restaurantListLiveData changed to $it")
                 restaurantAdapter.submitList(it)
                 mSwipeRefreshLayout.isRefreshing = false
             }
@@ -100,6 +105,46 @@ class NearbyRestaurantActivity : AppCompatActivity() {
             // The method calls setRefreshing(false) when it's finished.
             initiateRefresh()
         }
+
+        // drawer layout instance to toggle the menu icon to open
+        // drawer and back button to close drawer
+        drawerLayout = findViewById(R.id.my_drawer_layout)
+        actionBarDrawerToggle =
+            ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close)
+
+
+        // drawer layout instance to toggle the menu icon to open
+        // drawer and back button to close drawer
+        drawerLayout = findViewById(R.id.my_drawer_layout)
+        actionBarDrawerToggle =
+            ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close)
+
+        val navigationView: NavigationView = findViewById(R.id.my_navigation_view)
+
+        navigationView.setNavigationItemSelectedListener {
+            return@setNavigationItemSelectedListener when (it.itemId) {
+                R.id.nav_reservations -> {
+                    val intent = Intent(this, ReservationsListActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.nav_logout -> {
+                    Log.i(TAG, "logout")
+                    true
+                }
+                else -> {
+                    false
+                }
+            }
+        }
+
+        // pass the Open and Close toggle for the drawer layout listener
+        // to toggle the button
+        drawerLayout?.addDrawerListener(actionBarDrawerToggle!!)
+        actionBarDrawerToggle!!.syncState()
+
+        // to make the Navigation drawer icon always appear on the action bar
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
         mLocationController.startLocationUpdates()
     }
@@ -128,18 +173,23 @@ class NearbyRestaurantActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menu_refresh -> {
-                Log.i(TAG, "Refresh menu item selected")
+        if (actionBarDrawerToggle?.onOptionsItemSelected(item) == true) {
+            return true
+        }
+        else {
+            when (item.itemId) {
+                R.id.menu_refresh -> {
+                    Log.i(TAG, "Refresh menu item selected")
 
-                // We make sure that the SwipeRefreshLayout is displaying it's refreshing indicator
-                if (!mSwipeRefreshLayout.isRefreshing) {
-                    mSwipeRefreshLayout.isRefreshing = true
+                    // We make sure that the SwipeRefreshLayout is displaying it's refreshing indicator
+                    if (!mSwipeRefreshLayout.isRefreshing) {
+                        mSwipeRefreshLayout.isRefreshing = true
+                    }
+
+                    // Start our refresh background task
+                    initiateRefresh()
+                    return true
                 }
-
-                // Start our refresh background task
-                initiateRefresh()
-                return true
             }
         }
         return super.onOptionsItemSelected(item)

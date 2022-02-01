@@ -15,7 +15,7 @@ class GetNearbyRestaurantUseCase @Inject constructor(
         return restaurantRepository.getNearbyRestaurant(latitude, longitude, context, refresh)
     }
 
-    suspend fun invoke(restaurantId: Long): Restaurant {
+    suspend operator fun invoke(restaurantId: Long): Restaurant {
         return restaurantRepository.getRestaurant(restaurantId)
     }
 }

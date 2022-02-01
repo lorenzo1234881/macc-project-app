@@ -15,6 +15,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Maccprojectapp">
         <activity
+            android:name=".ui.reservationslist.ReservationsListActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.restaurantdetail.RestaurantDetailActivity"
             android:exported="true" />
         <activity
@@ -32,9 +35,10 @@
         <activity
             android:name=".ui.nearbyrestaurant.NearbyRestaurantActivity"
             android:exported="true" />
+
         <meta-data
-            android:name = "client_server_id"
-            android:value="${client_server_id}"/>
+            android:name="client_server_id"
+            android:value="${client_server_id}" />
     </application>
 
 </manifest>

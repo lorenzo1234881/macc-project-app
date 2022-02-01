@@ -5,13 +5,14 @@ import com.android.volley.Request
 import com.example.macc_project_app.data.reservation.Reservation
 import com.example.macc_project_app.data.restaurant.Restaurant
 import org.json.JSONObject
+import javax.inject.Inject
 
-class GetReservationsApi : BaseApi<ArrayList<Reservation>?>() {
+class GetReservationsApi @Inject constructor() : BaseApi<ArrayList<Reservation>?>() {
 
     private val route = "/get-reservations"
 
-    suspend fun getReservations(context: Context) {
-        super.sendRequest(null, route, Request.Method.GET, context)
+    suspend fun getReservations(context: Context): ArrayList<Reservation>? {
+        return super.sendRequest(null, route, Request.Method.GET, context)
     }
 
     override fun parseResponse(response: JSONObject?): ArrayList<Reservation>? {
@@ -27,7 +28,7 @@ class GetReservationsApi : BaseApi<ArrayList<Reservation>?>() {
                     Reservation(
                         reservationJsonObject.getLong("id"),
                         reservationJsonObject.getLong("restaurantid"),
-                        reservationJsonObject.getLong("number_seats")
+                        reservationJsonObject.getInt("number_seats")
                     )
                 )
             }

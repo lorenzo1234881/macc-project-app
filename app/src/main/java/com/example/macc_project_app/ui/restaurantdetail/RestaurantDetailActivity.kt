@@ -26,6 +26,7 @@ class RestaurantDetailActivity : AppCompatActivity() {
     private val restaurantImage: NetworkImageView by lazy { findViewById(R.id.restaurantImageView) }
     private val restaurantDescription: TextView by lazy { findViewById(R.id.restaurantDescription) }
     private val reserveButton: Button by lazy { findViewById(R.id.reserveTable) }
+    private val cancelButton: Button by lazy {findViewById(R.id.cancelReservation)}
 
     private var mCurrentRestaurantId : Long? = null
     private var mNumberOfSeats = 0
@@ -33,6 +34,9 @@ class RestaurantDetailActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_restaurant_detail)
+
+        reserveButton.isEnabled = false
+        cancelButton.isEnabled = false
 
         val bundle: Bundle? = intent.extras
         if (bundle != null) {
@@ -45,7 +49,7 @@ class RestaurantDetailActivity : AppCompatActivity() {
 
         mRestaurantDetailViewModel.getRestaurantLiveData().observe(this) {
             it?.let {
-                Log.d(TAG, "restaurantLiveData changed to $it")
+                Log.d(TAG, "restaurantListLiveData changed to $it")
 
                 restaurantName.text = it.name
                 restaurantDescription.text = it.description
@@ -56,12 +60,24 @@ class RestaurantDetailActivity : AppCompatActivity() {
         mRestaurantDetailViewModel.getReservationStateLiveData().observe(this) {
             it?.let {
                 Log.d(TAG, "reservationStateLiveData changed to $it")
+                if(it) {
+                    reserveButton.setText(R.string.update_reservation)
+                    reserveButton.isEnabled = true
+                    cancelButton.isEnabled = true
+                }
+                else {
+                    reserveButton.setText(R.string.reserve_table)
+                    reserveButton.isEnabled = true
+                    cancelButton.isEnabled = false
+                }
             }
         }
 
         mCurrentRestaurantId?.let {
             mRestaurantDetailViewModel.getRestaurant(it)
+            mRestaurantDetailViewModel.existsReservation(it)
         }
+
     }
 
     fun show() {

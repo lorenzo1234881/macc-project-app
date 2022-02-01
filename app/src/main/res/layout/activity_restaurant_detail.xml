@@ -32,7 +32,7 @@
         android:id="@+id/scrollView1"
         android:layout_width="328dp"
         android:layout_height="190dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.493"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,10 +49,20 @@
         android:id="@+id/reserveTable"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:text="@string/reserve_table"
         app:layout_constraintEnd_toEndOf="@+id/scrollView1"
         app:layout_constraintTop_toBottomOf="@+id/scrollView1" />
+
+    <Button
+        android:id="@+id/cancelReservation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/cancel_reservation"
+        app:layout_constraintEnd_toEndOf="@+id/reserveTable"
+        app:layout_constraintTop_toBottomOf="@+id/reserveTable" />
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
