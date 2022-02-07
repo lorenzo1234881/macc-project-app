@@ -9,7 +9,6 @@ import androidx.activity.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.macc_project_app.R
-import com.example.macc_project_app.data.reservation.Reservation
 import com.example.macc_project_app.data.restaurant.ReservedRestaurant
 import com.example.macc_project_app.ui.nearbyrestaurant.RESTAURANT_ID
 import com.example.macc_project_app.ui.restaurantdetail.RestaurantDetailActivity

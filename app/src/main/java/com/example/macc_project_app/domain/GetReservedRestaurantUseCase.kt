@@ -4,7 +4,6 @@ import android.content.Context
 import com.example.macc_project_app.data.reservation.Reservation
 import com.example.macc_project_app.data.reservation.ReservationRepository
 import com.example.macc_project_app.data.restaurant.ReservedRestaurant
-import com.example.macc_project_app.data.restaurant.Restaurant
 import javax.inject.Inject
 
 class GetReservedRestaurantUseCase @Inject constructor(

@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.macc_project_app.api.CancelReservationApi
-import com.example.macc_project_app.api.LogoutApi
 import com.example.macc_project_app.api.MakeReservationApi
 import com.example.macc_project_app.data.restaurant.Restaurant
 import com.example.macc_project_app.domain.GetNearbyRestaurantUseCase

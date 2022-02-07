@@ -3,7 +3,6 @@ package com.example.macc_project_app.api
 import android.content.Context
 import com.android.volley.Request
 import com.example.macc_project_app.data.reservation.Reservation
-import com.example.macc_project_app.data.restaurant.Restaurant
 import org.json.JSONObject
 import javax.inject.Inject
 

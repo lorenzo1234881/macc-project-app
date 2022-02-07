@@ -70,12 +70,12 @@ class NearbyRestaurantActivity : AppCompatActivity() {
             restaurant -> adapterOnClick(restaurant)
     }
 
-    var drawerLayout: DrawerLayout? = null
-    var actionBarDrawerToggle: ActionBarDrawerToggle? = null
+    private var drawerLayout: DrawerLayout? = null
+    private var actionBarDrawerToggle: ActionBarDrawerToggle? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_nearby_stores)
+        setContentView(R.layout.activity_nearby_restaurant)
 
         val recyclerView: RecyclerView = findViewById(R.id.restaurantRecyclerView)
         recyclerView.adapter = restaurantAdapter
