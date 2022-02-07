@@ -7,7 +7,7 @@ import javax.inject.Inject
 class ReservationRemoteDataSource @Inject constructor(
     private val getReservationsApi: GetReservationsApi
 ) {
-    suspend fun getReservations(context: Context): List<Reservation>? {
+    suspend fun getReservations(context: Context): List<ReservationResult>? {
         return getReservationsApi.getReservations(context)
     }
 }

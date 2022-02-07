@@ -24,27 +24,35 @@ class ReservationAdapter(private val onClick: (ReservedRestaurant) -> Unit)  :
         private val restaurantImageView: NetworkImageView = itemView.findViewById(R.id.restaurantImageView)
         private val restaurantAddressView: TextView = itemView.findViewById(R.id.restaurantAddressView)
         private val numberSeatsView: TextView = itemView.findViewById(R.id.numberSeatsView)
+        private val reservationTimeView: TextView = itemView.findViewById(R.id.reservationTimeView)
+        private val reservationDateView: TextView = itemView.findViewById(R.id.reservationDateView)
 
 
-        private var currentReservation: ReservedRestaurant? = null
+        private var currentReservedRestaurant: ReservedRestaurant? = null
         private val imageLoader = VolleySingleton.getInstance(itemView.context).imageLoader
 
         init {
             itemView.setOnClickListener {
-                currentReservation?.let {
+                currentReservedRestaurant?.let {
                     onClick(it)
                 }
             }
         }
 
         /* Bind reservation name and image. */
-        fun bind(reservation: ReservedRestaurant) {
-            currentReservation = reservation
+        fun bind(reservedRestaurant: ReservedRestaurant) {
+            currentReservedRestaurant = reservedRestaurant
 
-            restaurantNameView.text = reservation.restaurant.name
-            restaurantAddressView.text = reservation.restaurant.address
+            val reservation = reservedRestaurant.reservation
+
+            restaurantNameView.text = reservedRestaurant.restaurant.name
+            restaurantAddressView.text = reservedRestaurant.restaurant.address
             numberSeatsView.text = String.format("Number of seats reserved: %d", reservation.numberSeats)
-            restaurantImageView.setImageUrl(reservation.restaurant.imageUrl, imageLoader)
+            reservationTimeView.text = String.format("Time of reservation: %d:%d", reservation.hour, reservation.minute)
+            reservationDateView.text = String.format("Date of reservation: %d/%d/%d", reservation.dayOfMonth, reservation.month, reservation.year)
+
+
+            restaurantImageView.setImageUrl(reservedRestaurant.restaurant.imageUrl, imageLoader)
 
         }
     }
@@ -61,8 +69,8 @@ class ReservationAdapter(private val onClick: (ReservedRestaurant) -> Unit)  :
         }
 
         override fun onBindViewHolder(holder: ReservationViewHolder, position: Int) {
-            val reservation = getItem(position)
-            holder.bind(reservation)
+            val reservedRestaurant = getItem(position)
+            holder.bind(reservedRestaurant)
         }
 
 }

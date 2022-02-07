@@ -1,18 +1,21 @@
 package com.example.macc_project_app.ui.restaurantdetail
 
+import android.app.DatePickerDialog
 import android.app.Dialog
+import android.app.TimePickerDialog
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.util.Log
-import android.widget.Button
-import android.widget.NumberPicker
-import android.widget.TextView
+import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.toolbox.NetworkImageView
 import com.example.macc_project_app.R
 import com.example.macc_project_app.api.VolleySingleton
+import com.example.macc_project_app.data.reservation.Reservation
 import com.example.macc_project_app.ui.nearbyrestaurant.RESTAURANT_ID
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 
 @AndroidEntryPoint
@@ -29,7 +32,9 @@ class RestaurantDetailActivity : AppCompatActivity() {
     private val cancelButton: Button by lazy {findViewById(R.id.cancelReservation)}
 
     private var mCurrentRestaurantId : Long? = null
-    private var mNumberOfSeats = 0
+
+    private lateinit var mReservation : Reservation
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,10 +46,16 @@ class RestaurantDetailActivity : AppCompatActivity() {
         val bundle: Bundle? = intent.extras
         if (bundle != null) {
             mCurrentRestaurantId = bundle.getLong(RESTAURANT_ID)
+            mReservation = Reservation(mCurrentRestaurantId!!)
         }
 
         reserveButton.setOnClickListener {
-            show()
+            showDateAndTimeDialogs {
+                showNumberOfSeatsDialog {
+                    // Once user set all reservation properties, call api
+                    mRestaurantDetailViewModel.makeReservation(mReservation, this)
+                }
+            }
         }
 
         cancelButton.setOnClickListener {
@@ -84,7 +95,40 @@ class RestaurantDetailActivity : AppCompatActivity() {
 
     }
 
-    fun show() {
+    private fun showDateAndTimeDialogs(executeNext: () -> Unit) {
+        val calendar: Calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val datePickerDialog =
+            DatePickerDialog(
+                this,
+                { view, year, month, dayOfMonth ->
+                    mReservation.year = year
+                    mReservation.month = month
+                    mReservation.dayOfMonth = dayOfMonth
+
+                    val c = Calendar.getInstance()
+                    val timePickerDialog = TimePickerDialog(
+                        this@RestaurantDetailActivity,
+                        { timePicker: TimePicker, hourOfDay: Int, minute: Int ->
+                            mReservation.hour = hourOfDay
+                            mReservation.minute = minute
+                            executeNext()
+                        },
+                        c[Calendar.HOUR],
+                        c[Calendar.MINUTE],
+                        DateFormat.is24HourFormat(this@RestaurantDetailActivity)
+                    )
+                    timePickerDialog.show()
+                },
+                year,
+                month,
+                day)
+        datePickerDialog.show()
+    }
+
+    private fun showNumberOfSeatsDialog(executeNext : () -> Unit) {
         val d = Dialog(this@RestaurantDetailActivity)
         d.setTitle("NumberPicker")
         d.setContentView(R.layout.number_seats_dialog)
@@ -95,11 +139,10 @@ class RestaurantDetailActivity : AppCompatActivity() {
         np.wrapSelectorWheel = false
         setButton.setOnClickListener {
             d.dismiss()
-            mNumberOfSeats = np.value
-            mRestaurantDetailViewModel.makeReservation(mCurrentRestaurantId!!,  mNumberOfSeats, this)
+            mReservation.numberSeats = np.value
+            executeNext()
         }
         d.show()
     }
-
 
 }

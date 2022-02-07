@@ -16,9 +16,9 @@ class ReservationRepository @Inject constructor(
     // Mutex to make writes to cached values thread-safe.
     private val reservationsCacheMutex = Mutex()
 
-    private var reservationsCache : List<Reservation> = emptyList()
+    private var reservationsCache : List<ReservationResult> = emptyList()
 
-    suspend fun getReservations(context: Context, refresh: Boolean): List<Reservation> {
+    suspend fun getReservations(context: Context, refresh: Boolean): List<ReservationResult> {
         Log.d(TAG, "$refresh, $reservationsCache")
         if(refresh || reservationsCache.isEmpty()) {
             reservationsCacheMutex.withLock {
@@ -31,9 +31,9 @@ class ReservationRepository @Inject constructor(
         return reservationsCache
     }
 
-    suspend fun getReservation(restaurantId: Long): Reservation? {
+    suspend fun getReservation(restaurantId: Long): ReservationResult? {
         Log.d(TAG, "Find restaurant with id: $restaurantId")
 
-        return reservationsCache.find { r -> r.restaurantId == restaurantId }
+        return reservationsCache.find { r -> r.reservation.restaurantId == restaurantId }
     }
 }

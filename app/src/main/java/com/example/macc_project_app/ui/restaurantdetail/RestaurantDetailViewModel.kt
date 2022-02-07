@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.macc_project_app.api.CancelReservationApi
 import com.example.macc_project_app.api.MakeReservationApi
+import com.example.macc_project_app.data.reservation.Reservation
 import com.example.macc_project_app.data.restaurant.Restaurant
 import com.example.macc_project_app.domain.GetNearbyRestaurantUseCase
 import com.example.macc_project_app.domain.GetReservedRestaurantUseCase
@@ -40,9 +41,9 @@ class RestaurantDetailViewModel @Inject constructor(
         }
     }
 
-    fun makeReservation(restaurantId:Long, numberSeats: Int, context:Context) {
+    fun makeReservation(reservation: Reservation, context:Context) {
         viewModelScope.launch {
-            reservationStateLiveData.value = makeReservationApi.sendReservation(restaurantId, numberSeats, context)
+            reservationStateLiveData.value = makeReservationApi.sendReservation(reservation, context)
         }
     }
 

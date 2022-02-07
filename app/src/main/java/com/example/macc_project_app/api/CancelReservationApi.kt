@@ -2,7 +2,7 @@ package com.example.macc_project_app.api
 
 import android.content.Context
 import com.android.volley.Request
-import com.example.macc_project_app.data.reservation.Reservation
+import com.example.macc_project_app.data.reservation.ReservationResult
 import org.json.JSONObject
 import javax.inject.Inject
 
@@ -10,11 +10,11 @@ class CancelReservationApi @Inject constructor(): BaseApi<Boolean?>(){
 
     private val route = "/cancel-reservation"
 
-    suspend fun sendCancellation(reservation: Reservation, context: Context): Boolean? {
-        val reservationJson = JSONObject()
-        reservationJson.put("restaurantid", reservation.restaurantId)
+    suspend fun sendCancellation(reservationResult: ReservationResult, context: Context): Boolean? {
+        val reservationJsonObj = JSONObject()
+        reservationJsonObj.put("restaurantid", reservationResult.reservation.restaurantId)
 
-        return super.sendRequest(reservationJson, route, Request.Method.POST, context)
+        return super.sendRequest(reservationJsonObj, route, Request.Method.POST, context)
     }
 
     override fun parseResponse(response: JSONObject?): Boolean? {
