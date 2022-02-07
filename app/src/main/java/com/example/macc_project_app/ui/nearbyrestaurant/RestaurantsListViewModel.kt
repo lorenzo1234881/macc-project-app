@@ -6,6 +6,7 @@ import com.example.macc_project_app.api.LogoutApi
 import com.example.macc_project_app.data.restaurant.Restaurant
 import com.example.macc_project_app.domain.GetNearbyRestaurantUseCase
 import com.example.macc_project_app.domain.GetReservedRestaurantUseCase
+import com.example.macc_project_app.domain.LogoutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -14,8 +15,8 @@ import javax.inject.Inject
 class RestaurantsListViewModel @Inject constructor(
     val getNearbyRestaurantUseCase: GetNearbyRestaurantUseCase,
     val getReservedRestaurantUseCase: GetReservedRestaurantUseCase,
-    val logoutApi: LogoutApi,
-    ) : ViewModel() {
+    val logoutUseCase: LogoutUseCase
+) : ViewModel() {
 
     private val restaurantsLiveData: MutableLiveData<List<Restaurant>> = MutableLiveData()
     private val authLiveData: MutableLiveData<Boolean> = MutableLiveData()
@@ -43,7 +44,7 @@ class RestaurantsListViewModel @Inject constructor(
 
     fun logout(context: Context) {
         viewModelScope.launch {
-            authLiveData.value = logoutApi.logout(context)
+            authLiveData.value = logoutUseCase.logout(context)
         }
     }
 

@@ -36,4 +36,10 @@ class ReservationRepository @Inject constructor(
 
         return reservationsCache.find { r -> r.reservation.restaurantId == restaurantId }
     }
+
+    suspend fun emptyCache() {
+        reservationsCacheMutex.withLock {
+            reservationsCache = emptyList()
+        }
+    }
 }

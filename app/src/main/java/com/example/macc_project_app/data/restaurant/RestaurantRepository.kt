@@ -44,4 +44,10 @@ class RestaurantRepository @Inject constructor(
         val restaurant = restaurantsCache.find { r -> r.id == restaurantId }
         return restaurant!!
     }
+
+    suspend fun emptyCache() {
+        restaurantsCacheMutex.withLock {
+            restaurantsCache = emptyList()
+        }
+    }
 }
