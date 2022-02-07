@@ -28,6 +28,11 @@ class LocationController (
     private val activity: AppCompatActivity,
     private val mLocationCallback: LocationCallback
 ){
+
+    val REQUEST_CHECK_SETTINGS = 0x1
+    val REQUEST_LOCATION = 0x2
+
+
     private val TAG: String = LocationController::class.java.simpleName
 
     private val mLocationRequest: LocationRequest = LocationRequest.create().apply {
@@ -65,7 +70,8 @@ class LocationController (
     @SuppressLint("MissingPermission")
     fun startLocationUpdates() {
 
-        mRequestingLocationUpdates = true
+        Log.d(TAG, "startLocationUpdates: start location updates.")
+
 
         if(!locationPermissionsGranted()) {
             requestLocationPermissions()
@@ -78,6 +84,7 @@ class LocationController (
         mSettingsClient.checkLocationSettings(mLocationSettingsRequest)
             .addOnSuccessListener(activity) {
                 Log.i(TAG, "All location settings are satisfied.")
+                mRequestingLocationUpdates = true
                 mFusedLocationClient.requestLocationUpdates(
                     mLocationRequest,
                     mLocationCallback, Looper.myLooper()!!
@@ -99,8 +106,6 @@ class LocationController (
                                 activity,
                                 REQUEST_CHECK_SETTINGS
                             )
-
-                            // TODO try again startLocationUpdates()
 
                         } catch (sie: IntentSender.SendIntentException) {
                             Log.i(TAG, "PendingIntent unable to execute request.")

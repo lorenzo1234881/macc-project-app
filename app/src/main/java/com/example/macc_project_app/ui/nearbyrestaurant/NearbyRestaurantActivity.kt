@@ -1,6 +1,7 @@
 package com.example.macc_project_app.ui.nearbyrestaurant
 
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
@@ -28,9 +29,6 @@ import java.text.DateFormat
 import java.util.*
 
 
-const val REQUEST_CHECK_SETTINGS = 0x1
-const  val REQUEST_LOCATION = 0x2
-
 const val RESTAURANT_ID = "restaurant id"
 
 @AndroidEntryPoint
@@ -50,8 +48,6 @@ class NearbyRestaurantActivity : AppCompatActivity() {
             val longitude = mCurrentLocation.longitude.toString()
 
             Log.d(TAG, "longitude: $longitude, latitude: $latitude")
-
-            mLocationController.stopLocationUpdates()
 
             mRestaurantListViewModel.loadRestaurants(latitude, longitude,this@NearbyRestaurantActivity, mRefresh)
         }
@@ -110,7 +106,7 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         mSwipeRefreshLayout = findViewById(R.id.swiperefresh)
 
         mSwipeRefreshLayout.setOnRefreshListener {
-            Log.i(TAG, "onRefresh called from SwipeRefreshLayout")
+            Log.d(TAG, "onRefresh called from SwipeRefreshLayout")
 
             // This method performs the actual data-refresh operation.
             // The method calls setRefreshing(false) when it's finished.
@@ -140,7 +136,7 @@ class NearbyRestaurantActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_logout -> {
-                    Log.i(TAG, "logout")
+                    Log.d(TAG, "logout")
                     mRestaurantListViewModel.logout(this)
                     true
                 }
@@ -158,7 +154,6 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         // to make the Navigation drawer icon always appear on the action bar
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
-        mLocationController.startLocationUpdates()
     }
 
     /* Opens RestaurantDetailActivity when RecyclerView item is clicked. */
@@ -169,13 +164,13 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    override fun onPause() {
-        super.onPause()
-        mLocationController.stopLocationUpdates()
+    override fun onResume() {
+        super.onResume()
+        mLocationController.startLocationUpdates()
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
         mLocationController.stopLocationUpdates()
     }
 
@@ -191,7 +186,7 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         else {
             when (item.itemId) {
                 R.id.menu_refresh -> {
-                    Log.i(TAG, "Refresh menu item selected")
+                    Log.d(TAG, "Refresh menu item selected")
 
                     // We make sure that the SwipeRefreshLayout is displaying it's refreshing indicator
                     if (!mSwipeRefreshLayout.isRefreshing) {
@@ -213,12 +208,30 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if(requestCode == REQUEST_LOCATION) {
-            Log.i("RequestPermission", "Received response for Location permission request.")
-            mLocationController.startLocationUpdates()
+        when (requestCode) {
+            mLocationController.REQUEST_LOCATION -> {
+                Log.d("RequestPermission", "Received response for Location permission request.")
+                for (grantResult in grantResults) {
+                    if (grantResult == PackageManager.PERMISSION_DENIED) {
+                        Log.d("RequestPermission", "Permission denied")
+                    }
+                }
+            }
+            mLocationController.REQUEST_CHECK_SETTINGS -> {
+                Log.d("RequestPermission", "Check settings.")
+            }
+            else -> {
+                Log.d("RequestPermission", "Location permission was not granted.")
+            }
         }
-        else {
-            Log.i("RequestPermission", "Location permission was not granted.")
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            mLocationController.REQUEST_CHECK_SETTINGS -> {
+                Log.d(TAG, "Check settings")
+            }
         }
     }
 
@@ -228,7 +241,7 @@ class NearbyRestaurantActivity : AppCompatActivity() {
 
         restaurantAdapter.submitList(null)
 
-        Log.i(TAG, "initiateRefresh")
+        Log.d(TAG, "initiateRefresh")
 
         mLocationController.startLocationUpdates()
     }
@@ -246,6 +259,5 @@ class NearbyRestaurantActivity : AppCompatActivity() {
                 Log.d(TAG, "Revoke Access")
             }
     }
-
 
 }
