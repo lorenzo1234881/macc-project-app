@@ -40,7 +40,9 @@ class NearbyRestaurantApi @Inject constructor() : BaseApi<ArrayList<Restaurant>?
                     restaurantJsonObject.getString("description"),
                     restaurantJsonObject.getString("path_image"),
                     restaurantJsonObject.getString("address"),
-                    restaurantJsonObject.getDouble("distance")
+                    restaurantJsonObject.getDouble("distance"),
+                    restaurantJsonObject.getDouble("latitude"),
+                    restaurantJsonObject.getDouble("longitude")
                     )
                 )
             }

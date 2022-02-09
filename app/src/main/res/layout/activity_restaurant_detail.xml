@@ -63,6 +63,15 @@
         app:layout_constraintEnd_toEndOf="@+id/reserveTable"
         app:layout_constraintTop_toBottomOf="@+id/reserveTable" />
 
+    <Button
+        android:id="@+id/showMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="40dp"
+        android:text="Map"
+        app:layout_constraintStart_toStartOf="@+id/scrollView1"
+        app:layout_constraintTop_toBottomOf="@+id/scrollView1" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

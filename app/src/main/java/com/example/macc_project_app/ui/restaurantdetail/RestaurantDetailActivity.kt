@@ -3,6 +3,7 @@ package com.example.macc_project_app.ui.restaurantdetail
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.util.Log
@@ -14,6 +15,7 @@ import com.example.macc_project_app.R
 import com.example.macc_project_app.api.VolleySingleton
 import com.example.macc_project_app.data.reservation.Reservation
 import com.example.macc_project_app.ui.nearbyrestaurant.RESTAURANT_ID
+import com.example.macc_project_app.ui.openstreetmap.OsmActivity
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -30,6 +32,7 @@ class RestaurantDetailActivity : AppCompatActivity() {
     private val restaurantDescription: TextView by lazy { findViewById(R.id.restaurantDescription) }
     private val reserveButton: Button by lazy { findViewById(R.id.reserveTable) }
     private val cancelButton: Button by lazy {findViewById(R.id.cancelReservation)}
+    private val showMapButton: Button by lazy {findViewById(R.id.showMap)}
 
     private var mCurrentRestaurantId : Long? = null
 
@@ -47,6 +50,13 @@ class RestaurantDetailActivity : AppCompatActivity() {
         if (bundle != null) {
             mCurrentRestaurantId = bundle.getLong(RESTAURANT_ID)
             mReservation = Reservation(mCurrentRestaurantId!!)
+        }
+
+        showMapButton.setOnClickListener {
+            val intent = Intent(this, OsmActivity()::class.java)
+            Log.d(TAG, "Show map of restaurant: $mCurrentRestaurantId")
+            intent.putExtra(RESTAURANT_ID, mCurrentRestaurantId)
+            startActivity(intent)
         }
 
         reserveButton.setOnClickListener {
