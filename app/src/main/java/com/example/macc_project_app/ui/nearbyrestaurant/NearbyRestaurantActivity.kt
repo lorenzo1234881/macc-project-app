@@ -169,12 +169,12 @@ class NearbyRestaurantActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         mLocationController.startLocationUpdates()
     }
 
-    override fun onPause() {
+    override fun onStop() {
         super.onPause()
         mLocationController.stopLocationUpdates()
     }
@@ -243,6 +243,8 @@ class NearbyRestaurantActivity : AppCompatActivity() {
     private fun initiateRefresh() {
 
         mRefresh = true
+
+        mLocationController.stopLocationUpdates()
 
         restaurantAdapter.submitList(null)
 
