@@ -18,6 +18,7 @@ class ReservationListViewModel @Inject constructor(
 
     fun loadReservations(context: Context, refresh:Boolean=false) {
         viewModelScope.launch {
+
             reservationsListLiveData.value = getReservedRestaurantUseCase(context, refresh)
         }
     }

@@ -14,11 +14,15 @@ class GetReservedRestaurantUseCase @Inject constructor(
         val reservationResults: List<ReservationResult> = reservationRepository.getReservations(context, refresh)
         val reservedRestaurants = ArrayList<ReservedRestaurant>()
         for (r in reservationResults) {
-            reservedRestaurants.add(
-                ReservedRestaurant(
-                    restaurant=getNearbyRestaurantUseCase(r.reservation.restaurantId),
-                    reservation=r.reservation)
-            )
+            val restaurant=getNearbyRestaurantUseCase(r.reservation.restaurantId)
+            if (restaurant != null) {
+                reservedRestaurants.add(
+                    ReservedRestaurant(
+                        restaurant = restaurant,
+                        reservation = r.reservation
+                    )
+                )
+            }
         }
         return reservedRestaurants
     }

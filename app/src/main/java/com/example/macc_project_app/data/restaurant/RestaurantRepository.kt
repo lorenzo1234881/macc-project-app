@@ -38,11 +38,11 @@ class RestaurantRepository @Inject constructor(
         return restaurantsCache
     }
 
-    suspend fun getRestaurant(restaurantId: Long): Restaurant {
+    suspend fun getRestaurant(restaurantId: Long): Restaurant? {
         Log.d(TAG, "Find restaurant with id: $restaurantId")
 
         val restaurant = restaurantsCache.find { r -> r.id == restaurantId }
-        return restaurant!!
+        return restaurant
     }
 
     suspend fun emptyCache() {
