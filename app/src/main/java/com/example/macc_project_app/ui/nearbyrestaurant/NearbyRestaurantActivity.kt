@@ -49,6 +49,8 @@ class NearbyRestaurantActivity : AppCompatActivity() {
 
             Log.d(TAG, "longitude: $longitude, latitude: $latitude")
 
+            mLocationController.stopLocationUpdates()
+
             mRestaurantListViewModel.loadRestaurants(latitude, longitude,this@NearbyRestaurantActivity, mRefresh)
         }
     }
@@ -62,9 +64,10 @@ class NearbyRestaurantActivity : AppCompatActivity() {
 
     private var mLastUpdateTime: String? = ""
     private lateinit var mCurrentLocation: Location
-    private val mLocationController : LocationController by lazy {
-        LocationController(this@NearbyRestaurantActivity, NearbyRestaurantLocationCallback())
-    }
+
+    private val mNearbyLocationCallback = NearbyRestaurantLocationCallback()
+
+    private lateinit var mLocationController : LocationController
 
     private val restaurantAdapter = RestaurantAdapter {
             restaurant -> adapterOnClick(restaurant)
@@ -79,6 +82,8 @@ class NearbyRestaurantActivity : AppCompatActivity() {
 
         val recyclerView: RecyclerView = findViewById(R.id.restaurantRecyclerView)
         recyclerView.adapter = restaurantAdapter
+
+        mLocationController = LocationController(this@NearbyRestaurantActivity, mNearbyLocationCallback)
 
         mRestaurantListViewModel.getRestaurants().observe(this) {
             it?.let {
